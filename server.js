@@ -1,6 +1,5 @@
 const fastify = require("fastify")({ logger: true });
-const fetch = require("node-fetch");
-import fetch from 'node-fetch'; // Para Expo Push API
+const fetch = require("node-fetch");// Para Expo Push API
 const admin = require("firebase-admin"); // Para Firebase
 
 // Configuração do Firebase Admin SDK
