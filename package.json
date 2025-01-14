@@ -1,0 +1,21 @@
+{
+  "name": "backend-testenotification",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js",
+    "start" : "node server.js"
+    
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@fastify/websocket": "^11.0.1",
+    "fastify": "^5.2.1",
+    "firebase-admin": "^13.0.2",
+    "node-fetch": "^3.3.2"
+  }
+}
