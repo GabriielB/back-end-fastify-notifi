@@ -1,8 +1,8 @@
 const fastify = require("fastify")({ logger: true });
-const fetch = require("node-fetch"); // Para Expo
+const fetch = require("node-fetch"); // Para Expo Push API
 const admin = require("firebase-admin"); // Para Firebase
 
-
+// Configuração do Firebase Admin SDK
 const serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG);
 
 admin.initializeApp({
@@ -12,13 +12,15 @@ admin.initializeApp({
 // Endpoint para registrar dispositivo
 fastify.post("/register-device", async (request, reply) => {
   const { token } = request.body;
+
   if (!token) {
     return reply.status(400).send({ error: "Token não fornecido" });
   }
 
-  const deviceTokens = [];
+  const deviceTokens = []; // Simulação de armazenamento
   deviceTokens.push(token);
-  reply.send({ success: true });
+
+  reply.send({ success: true, tokens: deviceTokens });
 });
 
 // Endpoint para enviar notificações
@@ -26,10 +28,9 @@ fastify.post("/send-notification", async (request, reply) => {
   const { token, message, notificationType } = request.body;
 
   if (!token || !message || !notificationType) {
-    reply.status(400).send({
+    return reply.status(400).send({
       error: "Campos obrigatórios: token, message, notificationType",
     });
-    return;
   }
 
   const notificationPayload = {
@@ -47,7 +48,7 @@ fastify.post("/send-notification", async (request, reply) => {
     if (token.startsWith("ExponentPushToken")) {
       // Enviar via Expo Push API
       const response = await fetch("https://exp.host/--/api/v2/push/send", {
-        method: "POST",
+        method: "POST", // Define o método HTTP como POST
         headers: {
           "Content-Type": "application/json",
         },
@@ -61,7 +62,12 @@ fastify.post("/send-notification", async (request, reply) => {
       });
 
       const result = await response.json();
-      reply.send({ success: true, result });
+
+      if (response.ok) {
+        reply.send({ success: true, result });
+      } else {
+        reply.status(500).send({ success: false, error: result });
+      }
     } else {
       // Enviar via Firebase Cloud Messaging
       const messageToSend = {
