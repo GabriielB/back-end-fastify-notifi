@@ -25,19 +25,20 @@ fastify.post("/register-device", async (request, reply) => {
 
 // Endpoint para enviar notificações
 fastify.post("/send-notification", async (request, reply) => {
-  const { token, message, notificationType } = request.body;
+  const { token, title, message, notificationType } = request.body;
 
-  if (!token || !message || !notificationType) {
+  if (!token || !message || !notificationType || !title) {
     return reply.status(400).send({
-      error: "Campos obrigatórios: token, message, notificationType",
+      error: "Campos obrigatórios: token, title, message, notificationType",
     });
   }
 
   const notificationPayload = {
     type: "success",
-    message: "New notification received!",
+    message: "Nova notificação recebida!",
     data: {
       id: Date.now(),
+      title: title,
       message: message,
       notificationType: notificationType,
       createdAt: new Date().toISOString(),
@@ -48,14 +49,14 @@ fastify.post("/send-notification", async (request, reply) => {
     if (token.startsWith("ExponentPushToken")) {
       // Enviar via Expo Push API
       const response = await fetch("https://exp.host/--/api/v2/push/send", {
-        method: "POST", // Define o método HTTP como POST
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           to: token,
           sound: "default",
-          title: "Notificação",
+          title: title,
           body: message,
           data: notificationPayload,
         }),
@@ -72,7 +73,7 @@ fastify.post("/send-notification", async (request, reply) => {
       // Enviar via Firebase Cloud Messaging
       const messageToSend = {
         notification: {
-          title: "Notificação",
+          title: title, 
           body: message,
         },
         data: notificationPayload,
@@ -87,6 +88,7 @@ fastify.post("/send-notification", async (request, reply) => {
     reply.status(500).send({ success: false, error: error.message });
   }
 });
+
 
 // Inicializar o servidor
 const start = async () => {
